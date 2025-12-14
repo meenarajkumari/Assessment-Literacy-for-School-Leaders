@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Assessment Literacy for School Leaders – Matching Flipcards</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+:root{
+  --bg: radial-gradient(circle at top, #6366f1, #0f172a 55%, #020617);
+  --glass: rgba(15,23,42,.55);
+  --border: rgba(148,163,184,.35);
+  --accent: #60a5fa;
+  --text: #e5e7eb;
+  --muted: #9ca3af;
+  --w: min(420px, 90vw);
+  --h: 260px;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+
+body{
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:var(--bg);
+  font-family:system-ui,sans-serif;
+  color:var(--text);
+}
+
+.app{
+  width:100%;
+  max-width:900px;
+  padding:24px 16px;
+}
+
+header{
+  text-align:center;
+  margin-bottom:22px;
+}
+
+header h1{
+  font-size:clamp(1.4rem,3vw,2rem);
+  font-weight:700;
+}
+
+header p{
+  font-size:.9rem;
+  color:var(--muted);
+  margin-top:6px;
+}
+
+.wrapper{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:20px;
+}
+
+.nav{
+  width:42px;height:42px;
+  border-radius:999px;
+  border:1px solid var(--border);
+  background:rgba(15,23,42,.9);
+  color:var(--text);
+  font-size:1.3rem;
+  cursor:pointer;
+  transition:.2s;
+}
+
+.nav:hover{
+  transform:scale(1.1);
+  box-shadow:0 0 14px rgba(96,165,250,.5);
+}
+
+.slider{
+  width:var(--w);
+  height:var(--h);
+  perspective:1200px;
+  position:relative;
+}
+
+.slide{
+  position:absolute;
+  inset:0;
+  opacity:0;
+  pointer-events:none;
+  transform:translateX(30px) scale(.97);
+  transition:.45s;
+}
+
+.slide.active{
+  opacity:1;
+  pointer-events:auto;
+  transform:translateX(0) scale(1);
+}
+
+.flip{
+  width:100%;
+  height:100%;
+  transform-style:preserve-3d;
+  transition:transform .6s;
+  cursor:pointer;
+}
+
+.flip.flipped{
+  transform:rotateY(180deg);
+}
+
+.face{
+  position:absolute;
+  inset:0;
+  padding:22px;
+  border-radius:22px;
+  backdrop-filter:blur(18px);
+  background:
+    radial-gradient(circle at top left, rgba(96,165,250,.15), transparent 60%),
+    var(--glass);
+  border:1px solid var(--border);
+  box-shadow:0 20px 40px rgba(0,0,0,.6);
+  backface-visibility:hidden;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+}
+
+.back{transform:rotateY(180deg)}
+
+.tag{
+  font-size:.75rem;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+  color:var(--accent);
+  margin-bottom:12px;
+}
+
+.front h2{
+  font-size:1.35rem;
+  font-weight:700;
+  text-align:center;
+}
+
+.back p{
+  font-size:.95rem;
+  line-height:1.5;
+}
+
+.hint{
+  position:absolute;
+  bottom:14px;
+  right:18px;
+  font-size:.7rem;
+  color:var(--muted);
+}
+
+.footer{
+  margin-top:14px;
+  text-align:center;
+  font-size:.8rem;
+  color:var(--muted);
+}
+</style>
+</head>
+
+<body>
+<div class="app">
+<header>
+  <h1>Assessment Literacy – Matching Cards</h1>
+  <p>Recall the meaning · Flip to match · ⎵ Space flips</p>
+</header>
+
+<div class="wrapper">
+  <button class="nav" id="prev">‹</button>
+
+  <div class="slider" id="slider"></div>
+
+  <button class="nav" id="next">›</button>
+</div>
+
+<div class="footer" id="counter"></div>
+</div>
+
+<script>
+const data = [
+ ["Assessment Literacy","Understanding assessment principles, using data, designing fair and valid assessments, and making evidence-based decisions."],
+ ["Formative vs. Summative","Formative checks learning during instruction; summative evaluates learning at the end."],
+ ["Validity","The assessment measures what it is intended to measure."],
+ ["Reliability","Assessment scores remain consistent across time, forms, and raters."],
+ ["Fairness","Assessment minimizes bias and provides equal access with clear criteria."],
+ ["Alignment","Learning objectives, instruction, and assessment match in content and cognitive level."],
+ ["Performance Assessment","A real-world task showing application of skills, evaluated with a rubric."],
+ ["Item Analysis","Examining item difficulty and discrimination to improve test quality."],
+ ["Actionable Feedback","Specific, timely feedback that guides students on what to do next."],
+ ["Data-Driven Decision Making","Using multiple data sources and trends to guide instruction, interventions, and policy."]
+];
+
+const slider = document.getElementById("slider");
+const counter = document.getElementById("counter");
+let index = 0;
+
+data.forEach((d,i)=>{
+  slider.innerHTML += `
+  <div class="slide ${i===0?'active':''}">
+    <div class="flip">
+      <div class="face front">
+        <div class="tag">Match This Term</div>
+        <h2>${d[0]}</h2>
+        <div class="hint">tap / space</div>
+      </div>
+      <div class="face back">
+        <div class="tag">Correct Match</div>
+        <p>${d[1]}</p>
+        <div class="hint">tap / space</div>
+      </div>
+    </div>
+  </div>`;
+});
+
+const slides = document.querySelectorAll(".slide");
+
+function update(){
+  slides.forEach((s,i)=>{
+    s.classList.toggle("active", i===index);
+    s.querySelector(".flip").classList.remove("flipped");
+  });
+  counter.textContent = `Card ${index+1} of ${data.length}`;
+}
+
+document.getElementById("next").onclick=()=>{
+  index=(index+1)%data.length; update();
+};
+document.getElementById("prev").onclick=()=>{
+  index=(index-1+data.length)%data.length; update();
+};
+
+slider.onclick=()=>slides[index].querySelector(".flip").classList.toggle("flipped");
+
+/* SPACE BAR FLIP */
+window.addEventListener("keydown",e=>{
+  if(e.code==="Space"){
+    e.preventDefault();
+    slides[index].querySelector(".flip").classList.toggle("flipped");
+  }
+});
+
+update();
+</script>
+</body>
+</html>
